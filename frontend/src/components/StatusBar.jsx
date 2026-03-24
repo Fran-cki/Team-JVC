@@ -9,7 +9,7 @@ export default function StatusBar({ wordCount, charCount }) {
         <span className="status-val">{charCount}</span> caractère{charCount !== 1 ? "s" : ""}
       </span>
       <span className="status-sep">·</span>
-      <span className="status-item api">API <span className="api-dot" /> localhost:8000</span>
+      <span className="status-item api">API <span className="api-dot" /> MG-IA</span>
     </footer>
   );
 }

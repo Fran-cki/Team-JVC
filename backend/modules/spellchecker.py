@@ -2,20 +2,36 @@ from rapidfuzz.distance import Levenshtein
 import json, re, os
 
 class MalagasySpellChecker:
-    def __init__(self, dict_path="data/dictionary.json"):
-        # Utilisation d'un chemin absolu pour éviter le FileNotFoundError
+    def __init__(self, dict_path="data/malagasy_roots.json"):
+        # ... (votre logique de chemin absolu reste la même) ...
         base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         absolute_path = os.path.join(base_dir, dict_path)
         
         if not os.path.exists(absolute_path):
-            # Fallback si le dossier data est au même niveau
             absolute_path = os.path.join(os.getcwd(), dict_path)
 
-        with open(absolute_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-            # Correction CRITIQUE : Extraire la valeur 'mot' car 'item' est un dict
-            # Un set ne peut pas contenir de dict (unhashable)
-            self.dictionary = {item['mot'].lower() for item in data}
+        # Initialisation du set de dictionnaire
+        self.dictionary = set()
+
+        try:
+            with open(absolute_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                
+                # --- NOUVELLE LOGIQUE D'EXTRACTION ---
+                for entry in data:
+                    # 1. Ajouter la racine
+                    if "racine" in entry:
+                        self.dictionary.add(entry["racine"].lower().strip())
+                    
+                    # 2. Ajouter tous les dérivés
+                    if "derives" in entry and isinstance(entry["derives"], list):
+                        for derive in entry["derives"]:
+                            self.dictionary.add(derive.lower().strip())
+                # --------------------------------------
+                
+        except Exception as e:
+            print(f"Erreur lors du chargement du dictionnaire : {e}")
+            self.dictionary = set()
 
     def is_valid(self, word: str) -> bool:
         """Vérifie si un mot existe dans le dictionnaire (Table de hachage)."""

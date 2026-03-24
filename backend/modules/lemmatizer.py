@@ -1,7 +1,21 @@
 import re
+import json
 
-# Préfixes et suffixes Malagasy (annexe du sujet + linguistique MG)
-PREFIXES = [
+# Charger dataset
+with open("data/malagasy_roots.json", "r", encoding="utf-8") as f:
+    data = json.load(f)
+
+WORD_TO_ROOT = {}
+ROOT_SET = set()
+
+for entry in data:
+    root = entry["racine"]
+    ROOT_SET.add(root)
+    WORD_TO_ROOT[root] = root
+    for w in entry["derives"]:
+        WORD_TO_ROOT[w] = root
+
+PREFIXES = sorted([
     "a","an","bo","da","do",
     "f","fa","fan","fi","fo",
     "ga","go","ha","ho",
@@ -51,9 +65,9 @@ PREFIXES = [
     "mampifanka",
 
     "kara","mango","soma","tafa","tako","tala"
-]
+], key=len, reverse=True)
 
-SUFFIXES = ["-ana", "-ina", "-na"]
+SUFFIXES = ["ana", "ina", "na"]
 
 # Alternances phonétiques connues (exemple: man + t -> n)
 NASAL_ALTERNATIONS = {
@@ -63,28 +77,56 @@ NASAL_ALTERNATIONS = {
 }
 
 class MalagasyLemmatizer:
+
+    # --- CHARGEMENT SÉCURISÉ ---
+    for entry in data:
+        root = entry["racine"]
+        ROOT_SET.add(root)
+        # On n'ajoute dans le dictionnaire de mapping que si ce n'est pas déjà une racine
+        if root not in WORD_TO_ROOT:
+            WORD_TO_ROOT[root] = root
+        
+        for w in entry["derives"]:
+            # PRIORITÉ : Si le mot dérivé est déjà enregistré comme une RACINE, 
+            # on ne l'écrase pas.
+            if w not in ROOT_SET:
+                WORD_TO_ROOT[w] = root
+    
+    # --- MÉTHODE LEMMATIZE ---
     def lemmatize(self, word: str) -> str:
         word = word.lower().strip()
+
+        # 1. Si c'est déjà une racine connue, on s'arrête immédiatement !
+        if word in ROOT_SET:
+            return word
+    
+        # 2. Si c'est un dérivé direct connu
+        if word in WORD_TO_ROOT:
+            return WORD_TO_ROOT[word]
+
         root = word
 
-        # Étape 1 : retirer les suffixes
-        for suffix in SUFFIXES:
-            clean = suffix.lstrip("-")
-            if root.endswith(clean) and len(root) > len(clean) + 3:
-                root = root[: -len(clean)]
+        # ✅ 2 suffix
+        for s in SUFFIXES:
+            if root.endswith(s) and len(root) > len(s)+2:
+                root = root[:-len(s)]
                 break
 
-        # Étape 2 : retirer les préfixes (du plus long au plus court)
-        for prefix in sorted(PREFIXES, key=len, reverse=True):
-            if root.startswith(prefix) and len(root) > len(prefix) + 2:
-                root = root[len(prefix):]
+        # ✅ 3 prefix
+        for p in PREFIXES:
+            if root.startswith(p) and len(root) > len(p)+2:
+                root = root[len(p):]
                 break
 
-        # Étape 3 : alternances nasales
-        for pattern, replacement in NASAL_ALTERNATIONS.items():
-            root = re.sub(pattern, replacement, root)
+        # ✅ 4 fallback dictionnaire
+        if root in WORD_TO_ROOT:
+            return WORD_TO_ROOT[root]
 
-        return root if root else word
+        # ✅ 5 fallback racine connue
+        if root in ROOT_SET:
+            return root
+
+        return word
 
     def get_analysis(self, word: str) -> dict:
         root = self.lemmatize(word)

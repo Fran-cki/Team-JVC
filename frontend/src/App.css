@@ -114,7 +114,6 @@ body {
 }
 .editor-textarea {
   width: 100%;
-  min-height: 350px;
   background: transparent;
   border: none;
   border-left: 2px solid var(--border);
