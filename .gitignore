@@ -10,6 +10,8 @@ venv
 env
 /lib/python*/site-packages
 
+/node_modules
+
 # Fichiers de package / build
 __pycache__
 *.py[co]
