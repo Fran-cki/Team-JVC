@@ -10,8 +10,6 @@ venv
 env
 /lib/python*/site-packages
 
-/node_modules
-
 # Fichiers de package / build
 __pycache__
 *.py[co]
@@ -49,3 +47,19 @@ db.sqlite3
 
 # Windows
 Thumbs.db
+
+# Node
+node_modules/
+**/node_modules/
+
+# Python
+venv/
+.venv/
+__pycache__/
+
+# Env
+.env
+
+# Build
+dist/
+build/

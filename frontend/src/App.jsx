@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import Editor from "./components/Editor";
 import Sidebar from "./components/Sidebar";
 import StatusBar from "./components/StatusBar";
@@ -14,7 +14,7 @@ export default function App() {
   const [activePanel, setActivePanel] = useState("spell");
   const [loading, setLoading] = useState({ spell: false, lemma: false, predict: false });
   const [wordCount, setWordCount] = useState(0);
-  const [suggestions, setSuggestions] = useState([]);
+  const debounceRef = useRef(null);
 
   useEffect(() => {
     const words = text.trim() ? text.trim().split(/\s+/).length : 0;
@@ -28,16 +28,17 @@ export default function App() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: val }),
-      });      
+      });
       const data = await res.json();
-      setSuggestions(data.suggestions);
       setPredictions(data.suggestions || []);
     } catch { setPredictions([]); }
   }, []);
 
   const handleTextChange = useCallback((val) => {
     setText(val);
-  }, []);
+    clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => fetchPredictions(val), 400);
+  }, [fetchPredictions]);
 
   const runSpellCheck = async () => {
     if (!text.trim()) return;
@@ -74,7 +75,7 @@ export default function App() {
   const insertPrediction = (word) => {
     const trimmed = text.trimEnd();
     const lastSpace = trimmed.lastIndexOf(" ");
-    const base = lastSpace >= 0 ? trimmed.slice(0, lastSpace + 1) : "";    
+    const base = lastSpace >= 0 ? trimmed.slice(0, lastSpace + 1) : "";
     setText(word + " ");
     setPredictions([]);
   };
@@ -112,8 +113,6 @@ export default function App() {
           onChange={handleTextChange}
           predictions={predictions}
           onInsertPrediction={insertPrediction}
-          onPredict={fetchPredictions}
-          suggestions={suggestions}          
         />
         <Sidebar
           activePanel={activePanel}

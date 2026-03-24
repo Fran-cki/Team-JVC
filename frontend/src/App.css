@@ -9,8 +9,8 @@
   --accent: #c8a96e;
   --accent2: #e2c98a;
   --text: #e8e4dc;
-  --text-muted: #e0e0e0;
-  --text-dim: #dddddd;
+  --text-muted: #7a7570;
+  --text-dim: #4a4540;
   --error: #d97474;
   --ok: #74c48a;
   --radius: 6px;
@@ -114,7 +114,7 @@ body {
 }
 .editor-textarea {
   width: 100%;
-  min-height: 420px;
+  min-height: 350px;
   background: transparent;
   border: none;
   border-left: 2px solid var(--border);

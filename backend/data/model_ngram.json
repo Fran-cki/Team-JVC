@@ -4698,7 +4698,9 @@
         "izy": 1
     },
     "salama": {
-        "rehefa": 1
+        "rehefa": 1,
+        "tompoko": 1,
+        "daholo": 1
     },
     "fialan": {
         "tsasatra": 1
@@ -4711,5 +4713,11 @@
     },
     "hatory": {
         "misotro": 1
+    },
+    "fanatanjahantena": {
+        "salama": 1
+    },
+    "tompoko": {
+        "salama": 1
     }
 }

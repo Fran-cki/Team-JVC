@@ -1,9 +1,8 @@
 import { useRef, useEffect } from "react";
 
-export default function Editor({ text, onChange, predictions, onInsertPrediction, onPredict }) {
+export default function Editor({ text, onChange, predictions, onInsertPrediction }) {
   const textareaRef = useRef(null);
 
-  // Auto-resize du textarea
   useEffect(() => {
     const ta = textareaRef.current;
     if (ta) {
@@ -12,51 +11,33 @@ export default function Editor({ text, onChange, predictions, onInsertPrediction
     }
   }, [text]);
 
-  const handleKeyUp = (e) => {
-    // Déclenche la prédiction après un espace ou une ponctuation
-    if (e.key === " " || e.key === "." || e.key === ",") {
-      onPredict(text);
-    }
-  };
-
   return (
     <div className="editor-wrap">
       <div className="editor-inner">
-        <div className="editor-header">
-          <span className="editor-label">Document Malagasy</span>
-          {/* <span className="editor-status">
-            {text.split(/\s+/).filter(w => w.length > 0).length} mots
-          </span> */}
-        </div>
-
+        <div className="editor-label">Document</div>
         <textarea
           ref={textareaRef}
           className="editor-textarea"
           value={text}
           onChange={(e) => onChange(e.target.value)}
-          onKeyUp={handleKeyUp}
-          placeholder="Soraty eto ny lahatsoratra..."
+          placeholder="Écrire en malagasy ici…"
           spellCheck={false}
           autoComplete="off"
-          id="textarea"
+          id="textChamp"
         />
 
-        {/* Liste des suggestions style "Autocomplete" */}
-        {predictions && predictions.length > 0 && (
-          <div className="suggestion-bar">
-            <div className="suggestion-content">
-              {predictions.map((word, i) => (
-                <button
-                  key={i}
-                  className="suggestion-item"
-                  onClick={() => onInsertPrediction(document.getElementById("textarea").value+" "+word)}
-                  title={`Insérer "${word}"`}
-                >
-                  <span className="suggestion-text">{word}</span>
-                  {/* <kbd className="suggestion-key">{i}</kbd> */}
-                </button>
-              ))}
-            </div>
+        {predictions.length > 0 && (
+          <div className="predictions">
+            <span className="predictions-label">Suggestions :</span>
+            {predictions.map((w, i) => (
+              <button
+                key={i}
+                className="prediction-chip"
+                onClick={() => onInsertPrediction(document.getElementById("textChamp").value+" "+w)}
+              >
+                {w}
+              </button>
+            ))}
           </div>
         )}
       </div>
