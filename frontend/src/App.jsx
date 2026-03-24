@@ -37,7 +37,7 @@ export default function App() {
   const handleTextChange = useCallback((val) => {
     setText(val);
     clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => fetchPredictions(val), 400);
+    debounceRef.current = setTimeout(() => fetchPredictions(val), 100);
   }, [fetchPredictions]);
 
   const runSpellCheck = async () => {
