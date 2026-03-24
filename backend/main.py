@@ -46,16 +46,7 @@ def lemmatize(req: TextRequest):
     words = req.text.split()
     return {"results": [lemma.get_analysis(w) for w in words]}
 
-@app.post("/phonotactics")
-def phonotactics(req: TextRequest):
-    return {"errors": phono.check_text(req.text)}
-
-# --- NOUVEL ENDPOINT : AUTOCOMPLÉTION ---
 @app.post("/predict")
 def predict_next_word(req: TextRequest):
-    """
-    Prend le texte actuel de l'éditeur et suggère les mots suivants 
-    en se basant sur le dernier mot tapé.
-    """
     suggestions = predictor.predict(req.text, limit=5)
     return {"suggestions": suggestions}
